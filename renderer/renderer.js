@@ -1352,10 +1352,22 @@ function seasonOf(d = new Date()) {
   if (near(11, 25, y) || near(11, 25, y - 1)) return 'christmas';
   return '';
 }
+// Every sidebar tab gets a themed icon while a theme is on
+const SEASON_ICONS = {
+  halloween: { scores: '👻', recaps: '🧛', activity: '🦇', standings: '🕸️', playoffs: '💀', leaderboards: '🧙', pickups: '🧪', injuries: '🩸', schedule: '🌙', roster: '🧟', teams: '🕯️', settings: '🔮' },
+  christmas: { scores: '🎄', recaps: '🎁', activity: '⭐', standings: '⛄', playoffs: '❄️', leaderboards: '🎅', pickups: '🧦', injuries: '🕯️', schedule: '🔔', roster: '🦌', teams: '🌟', settings: '🧤' }
+};
+const navIcon = (k) => (SEASON_ICONS[document.documentElement.dataset.season] || {})[k] || (NAV_ITEMS[k] || [''])[0];
 function applySeason() {
   const s = settingOn('seasonalThemes') ? seasonOf() : '';
+  const before = document.documentElement.dataset.season || '';
   if (s) document.documentElement.dataset.season = s;
   else delete document.documentElement.dataset.season;
+  if (s !== before) {
+    buildNav();
+    const gear = $('#navSettings i');
+    if (gear) gear.textContent = s ? SEASON_ICONS[s].settings : '⚙';
+  }
 }
 
 /* ---------- Sidebar (grouped, reorderable within a group, lockable) ---------- */
@@ -1405,7 +1417,7 @@ function buildNav() {
     if (!order.length) return '';
     return `<div class="navgroup">${esc(name)}</div>` + order.map((k, i) => `
     <div class="navrow">
-      <button class="nav ${state.tab === k ? 'active' : ''}" data-view="${k}"><i>${NAV_ITEMS[k][0]}</i> ${NAV_ITEMS[k][1]}</button>
+      <button class="nav ${state.tab === k ? 'active' : ''}" data-view="${k}"><i>${navIcon(k)}</i> ${NAV_ITEMS[k][1]}</button>
       ${locked ? '' : `<span class="mv">
         <button data-mv="${k}" data-d="-1" ${i === 0 ? 'disabled' : ''} title="Move up">▲</button>
         <button data-mv="${k}" data-d="1" ${i === order.length - 1 ? 'disabled' : ''} title="Move down">▼</button>
