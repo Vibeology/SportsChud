@@ -1268,7 +1268,7 @@ function renderSettings() {
     ['keepInTray', 'Keep running in tray', 'Closing the window hides it to the tray so alerts keep coming. Quit from the tray icon.']
   ];
   const appearance = [
-    ['seasonalThemes', 'Seasonal themes', 'Halloween and Christmas colors for the week before and after each holiday (Oct 24 to Nov 7, Dec 18 to Jan 1). Turn off to keep the normal look all year.']
+    ['seasonalThemes', 'Seasonal themes', 'Halloween and Christmas colors from a week before each holiday until 9 AM the morning after it (Oct 24 to Nov 1, Dec 18 to Dec 26). Turn off to keep the normal look all year.']
   ];
   const mini = [
     ['overlayEnabled', 'Mini scoreboard', 'A small always-on-top window with the score and clock of your live games. Drag it anywhere; it remembers where you left it. Also in the tray menu.'],
@@ -1343,13 +1343,13 @@ function renderSettings() {
 }
 
 /* ---------- Seasonal themes ---------- */
-// Halloween and Christmas colour the app for the week before and after the day itself (Oct 24 to Nov 7, Dec 18 to Jan 1).
-// The "Seasonal themes" setting (on by default) switches them off.
+// Halloween and Christmas colour the app from a week before the day until 9 AM the morning after it
+// (Oct 24 00:00 to Nov 1 09:00, Dec 18 00:00 to Dec 26 09:00). The "Seasonal themes" setting (on by default) switches them off.
 function seasonOf(d = new Date()) {
-  const near = (m, day, y) => Math.abs(startOfDay(d) - new Date(y, m, day)) <= 7 * 86400000;
   const y = d.getFullYear();
-  if (near(9, 31, y)) return 'halloween';
-  if (near(11, 25, y) || near(11, 25, y - 1)) return 'christmas';
+  const within = (from, to) => d >= from && d < to;
+  if (within(new Date(y, 9, 24), new Date(y, 10, 1, 9))) return 'halloween';
+  if (within(new Date(y, 11, 18), new Date(y, 11, 26, 9))) return 'christmas';
   return '';
 }
 // Every sidebar tab gets a themed icon while a theme is on: a short set of icons repeated down the tabs in sidebar order
@@ -1588,7 +1588,7 @@ function applyTestButton() { $('#test').hidden = !settingOn('showTestAlert'); }
 
   if (CAL_VIEWS.includes(state.settings.calView)) state.cal.view = state.settings.calView;
   applySeason();
-  setInterval(applySeason, 3600000); // the theme starts and ends at midnight even if the app stays open
+  setInterval(applySeason, 60000); // the theme starts at midnight and ends at 9 AM even if the app stays open
   applyTestButton();
   try { state.version = await api.version(); } catch (_) {}
   try { state.update = await api.updateState(); } catch (_) {}
