@@ -40,7 +40,7 @@ button, select { -webkit-app-region: no-drag; font: inherit; color: inherit; }
 }
 .brand span { text-transform: uppercase; }
 .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; letter-spacing: 0.2px; padding: 4px 8px 24px; }
-.mark { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); object-fit: cover; }
+.mark { width: 40px; height: 40px; border-radius: 50%; }
 /* seasonal logos: the same round slot holds a pumpkin or a bauble */
 :root[data-season="halloween"] .mark { content: url(pumpkin.svg); border: 0; border-radius: 0; }
 :root[data-season="christmas"] .mark { content: url(bulb.svg); border: 0; border-radius: 0; }

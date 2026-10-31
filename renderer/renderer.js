@@ -1352,22 +1352,18 @@ function seasonOf(d = new Date()) {
   if (near(11, 25, y) || near(11, 25, y - 1)) return 'christmas';
   return '';
 }
-// Every sidebar tab gets a themed icon while a theme is on
-const SEASON_ICONS = {
-  halloween: { scores: '👻', recaps: '🧛', activity: '🦇', standings: '🕸️', playoffs: '💀', leaderboards: '🧙', pickups: '🧪', injuries: '🩸', schedule: '🌙', roster: '🧟', teams: '🕯️', settings: '🔮' },
-  christmas: { scores: '🎄', recaps: '🎁', activity: '⭐', standings: '⛄', playoffs: '❄️', leaderboards: '🎅', pickups: '🧦', injuries: '🕯️', schedule: '🔔', roster: '🦌', teams: '🌟', settings: '🧤' }
-};
-const navIcon = (k) => (SEASON_ICONS[document.documentElement.dataset.season] || {})[k] || (NAV_ITEMS[k] || [''])[0];
+// Every sidebar tab gets a themed icon while a theme is on: a short set of icons repeated down the tabs in sidebar order
+const SEASON_SETS = { halloween: ['👻', '🕸️', '💀', '🩸'], christmas: ['🎄', '🎁', '⛄', '🎅'] };
+// i = the tab's place among the tabs that are showing, so the set repeats evenly down the sidebar
+const seasonIcon = (s, i) => (SEASON_SETS[s] ? SEASON_SETS[s][i % SEASON_SETS[s].length] : '');
+const navIcon = (k, i) => seasonIcon(document.documentElement.dataset.season, i) || (NAV_ITEMS[k] || [''])[0];
+const visibleNavCount = () => NAV_GROUPS.reduce((n, [, keys]) => n + keys.filter(navVisible).length, 0);
 function applySeason() {
   const s = settingOn('seasonalThemes') ? seasonOf() : '';
   const before = document.documentElement.dataset.season || '';
   if (s) document.documentElement.dataset.season = s;
   else delete document.documentElement.dataset.season;
-  if (s !== before) {
-    buildNav();
-    const gear = $('#navSettings i');
-    if (gear) gear.textContent = s ? SEASON_ICONS[s].settings : '⚙';
-  }
+  if (s !== before) buildNav();
 }
 
 /* ---------- Sidebar (grouped, reorderable within a group, lockable) ---------- */
@@ -1412,18 +1408,21 @@ function navOrder(keys) {
 
 function buildNav() {
   const locked = state.settings.navLocked !== false;
+  let shownIdx = 0;
   $('#nav').innerHTML = NAV_GROUPS.map(([name, keys]) => {
     const order = navOrder(keys).filter(navVisible);
     if (!order.length) return '';
     return `<div class="navgroup">${esc(name)}</div>` + order.map((k, i) => `
     <div class="navrow">
-      <button class="nav ${state.tab === k ? 'active' : ''}" data-view="${k}"><i>${navIcon(k)}</i> ${NAV_ITEMS[k][1]}</button>
+      <button class="nav ${state.tab === k ? 'active' : ''}" data-view="${k}"><i>${navIcon(k, shownIdx++)}</i> ${NAV_ITEMS[k][1]}</button>
       ${locked ? '' : `<span class="mv">
         <button data-mv="${k}" data-d="-1" ${i === 0 ? 'disabled' : ''} title="Move up">▲</button>
         <button data-mv="${k}" data-d="1" ${i === order.length - 1 ? 'disabled' : ''} title="Move down">▼</button>
       </span>`}
     </div>`).join('');
   }).join('');
+  const gear = $('#navSettings i'); // Settings continues the themed icon set after the last tab
+  if (gear) gear.textContent = seasonIcon(document.documentElement.dataset.season, shownIdx) || '⚙';
   const lock = $('#navlock');
   lock.textContent = locked ? '🔒 Sidebar locked' : '🔓 Reorder, then lock';
   lock.classList.toggle('open', !locked);
