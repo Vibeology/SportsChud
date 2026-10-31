@@ -1353,7 +1353,7 @@ function seasonOf(d = new Date()) {
   return '';
 }
 // Every sidebar tab gets a themed icon while a theme is on: a short set of icons repeated down the tabs in sidebar order
-const SEASON_SETS = { halloween: ['👻', '🕸️', '💀', '🩸'], christmas: ['🎄', '🎁', '⛄', '🎅'] };
+const SEASON_SETS = { halloween: ['👻', '🧛', '💀', '🕸️', '🩸'], christmas: ['🎄', '🎁', '⛄', '🎅', '🦌'] };
 // i = the tab's place among the tabs that are showing, so the set repeats evenly down the sidebar
 const seasonIcon = (s, i) => (SEASON_SETS[s] ? SEASON_SETS[s][i % SEASON_SETS[s].length] : '');
 const navIcon = (k, i) => seasonIcon(document.documentElement.dataset.season, i) || (NAV_ITEMS[k] || [''])[0];
